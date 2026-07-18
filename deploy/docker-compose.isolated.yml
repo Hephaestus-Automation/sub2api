@@ -1,0 +1,43 @@
+# Independent Sub2API deployment based on docker-compose.yml.
+#
+# Use a different SERVER_PORT when another Sub2API instance is running:
+#   STACK_NAME=sub2api-second SERVER_PORT=8081 \
+#     docker compose -f docker-compose.isolated.yml up -d
+
+name: ${STACK_NAME:-sub2api-local}
+
+services:
+  sub2api:
+    extends:
+      file: docker-compose.yml
+      service: sub2api
+    image: ${SUB2API_IMAGE:-weishaw/sub2api:latest}
+    container_name: ${STACK_NAME:-sub2api-local}
+
+  postgres:
+    extends:
+      file: docker-compose.yml
+      service: postgres
+    container_name: ${STACK_NAME:-sub2api-local}-postgres
+
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
+    container_name: ${STACK_NAME:-sub2api-local}-redis
+
+volumes:
+  sub2api_data:
+    name: ${STACK_NAME:-sub2api-local}-data
+    driver: local
+  postgres_data:
+    name: ${STACK_NAME:-sub2api-local}-postgres-data
+    driver: local
+  redis_data:
+    name: ${STACK_NAME:-sub2api-local}-redis-data
+    driver: local
+
+networks:
+  sub2api-network:
+    name: ${STACK_NAME:-sub2api-local}-network
+    driver: bridge
